@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Git 活動</title>
+<style>
+  :root {
+    --bg: #f0eeeb;
+    --card: #ffffff;
+    --ink: #2b2733;
+    --muted: #7a7385;
+    --accent: #8b7fa8;
+    --accent-dark: #6d5f8d;
+    --cell-0: #e7e4ee;
+    --cell-1: #cfc7de;
+    --cell-2: #b0a3cb;
+    --cell-3: #8f7db4;
+    --cell-4: #6d5f8d;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 40px 24px;
+  }
+  .wrap { max-width: 1080px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  .sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(43,39,51,.08);
+  }
+  .toolbar {
+    display: flex; align-items: center; justify-content: space-between;
+    flex-wrap: wrap; gap: 12px; margin-bottom: 18px;
+  }
+  .total { font-size: 15px; font-weight: 600; }
+  .years { display: flex; gap: 6px; flex-wrap: wrap; }
+  .years button {
+    border: 1px solid #d8d3e0; background: #faf9fb; color: var(--ink);
+    border-radius: 8px; padding: 5px 14px; font-size: 13px; cursor: pointer;
+  }
+  .years button.active {
+    background: var(--accent); border-color: var(--accent);
+    color: #fff; font-weight: 600;
+  }
+  .grid-scroll { overflow-x: auto; padding-bottom: 4px; }
+  svg text { font-size: 10px; fill: var(--muted); }
+  .legend {
+    display: flex; align-items: center; gap: 4px; justify-content: flex-end;
+    margin-top: 10px; font-size: 12px; color: var(--muted);
+  }
+  .legend i { width: 11px; height: 11px; border-radius: 2px; display: inline-block; }
+  footer { margin-top: 20px; font-size: 12.5px; color: var(--muted); line-height: 1.7; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Git 活動</h1>
+  <div class="sub" id="meta">載入中…</div>
+  <div class="card">
+    <div class="toolbar">
+      <div class="total" id="total"></div>
+      <div class="years" id="years"></div>
+    </div>
+    <div class="grid-scroll"><div id="grid"></div></div>
+    <div class="legend" id="legend"></div>
+  </div>
+  <footer>
+    此頁僅包含<b>每日 commit 次數</b>的聚合統計。repo 名稱、commit 訊息、檔案路徑與 diff 內容皆不在此資料集中。<br>
+    資料由本地資料庫離線匯出（<code>scripts/export.py</code>），手動更新。
+  </footer>
+</div>
+<script>
+(async function () {
+  const CELL = 13, GAP = 3, TOP = 18, LEFT = 26;
+  const LEVELS = ['--cell-0','--cell-1','--cell-2','--cell-3','--cell-4'];
+  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
+  const MONTHS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
+  const DAYS = { 1: '一', 3: '三', 5: '五' };
+
+  let data;
+  try {
+    data = await (await fetch('activity.json', { cache: 'no-store' })).json();
+  } catch (e) {
+    document.getElementById('meta').textContent =
+      '無法載入 activity.json — 若在本機開啟，請先執行 python3 -m http.server 再瀏覽。';
+    return;
+  }
+
+  const counts = data.counts || {};
+  const years = [...new Set(Object.keys(counts).map(d => d.slice(0, 4)))].sort().reverse();
+  if (!years.length) { document.getElementById('meta').textContent = '尚無資料。'; return; }
+
+  document.getElementById('meta').textContent =
+    `共 ${data.total} 筆 commit ・ 資料更新於 ${(data.generated_at || '').slice(0, 10)}`;
+
+  const legend = document.getElementById('legend');
+  legend.innerHTML = '少 ' + LEVELS.map(l => `<i style="background:${css(l)}"></i>`).join('') + ' 多';
+
+  const yearsEl = document.getElementById('years');
+  years.forEach(y => {
+    const b = document.createElement('button');
+    b.textContent = y;
+    b.onclick = () => render(y);
+    yearsEl.appendChild(b);
+  });
+
+  function render(year) {
+    [...yearsEl.children].forEach(b => b.classList.toggle('active', b.textContent === year));
+    const start = new Date(year + '-01-01T00:00:00');
+    const end = new Date(year + '-12-31T00:00:00');
+    const firstCol = new Date(start);
+    firstCol.setDate(firstCol.getDate() - firstCol.getDay()); // back to Sunday
+
+    let yearTotal = 0, max = 0;
+    const cells = [];
+    for (let d = new Date(firstCol), col = 0; d <= end; col++) {
+      for (let row = 0; row < 7; row++, d.setDate(d.getDate() + 1)) {
+        if (d < start || d > end) continue;
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const n = counts[key] || 0;
+        yearTotal += n; max = Math.max(max, n);
+        cells.push({ col, row, key, n, month: d.getMonth(), date: d.getDate() });
+      }
+    }
+    document.getElementById('total').textContent = `${yearTotal} 次 commit（${year} 年）`;
+
+    const ncols = Math.max(...cells.map(c => c.col)) + 1;
+    const W = LEFT + ncols * (CELL + GAP), H = TOP + 7 * (CELL + GAP);
+    let svg = `<svg width="${W}" height="${H}" role="img" aria-label="${year} 年每日 commit 熱力圖">`;
+
+    let lastMonth = -1;
+    cells.filter(c => c.row === 0 || (c.date === 1)).forEach(c => {
+      if (c.month !== lastMonth) {
+        svg += `<text x="${LEFT + c.col * (CELL + GAP)}" y="11">${MONTHS[c.month]}</text>`;
+        lastMonth = c.month;
+      }
+    });
+    for (const [row, label] of Object.entries(DAYS)) {
+      svg += `<text x="0" y="${TOP + row * (CELL + GAP) + CELL - 3}">${label}</text>`;
+    }
+    for (const c of cells) {
+      const lvl = c.n === 0 ? 0 : Math.min(4, Math.ceil((c.n / max) * 4));
+      svg += `<rect x="${LEFT + c.col * (CELL + GAP)}" y="${TOP + c.row * (CELL + GAP)}"
+        width="${CELL}" height="${CELL}" rx="2.5" fill="${css(LEVELS[lvl])}">
+        <title>${c.key}：${c.n} 次 commit</title></rect>`;
+    }
+    svg += '</svg>';
+    document.getElementById('grid').innerHTML = svg;
+  }
+
+  render(years[0]);
+})();
+</script>
+</body>
+</html>
