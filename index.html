@@ -56,6 +56,25 @@
     margin-top: 10px; font-size: 12px; color: var(--muted);
   }
   .legend i { width: 11px; height: 11px; border-radius: 2px; display: inline-block; }
+  .langs { margin-top: 22px; }
+  .langs h2 {
+    font-size: 14px; font-weight: 600; margin: 0 0 10px; color: var(--ink);
+  }
+  .lang-bar {
+    display: flex; height: 10px; border-radius: 999px; overflow: hidden;
+    background: var(--cell-0);
+  }
+  .lang-bar span { display: block; height: 100%; min-width: 0; }
+  .lang-list {
+    display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 12px;
+    font-size: 12.5px; color: var(--muted); padding: 0; list-style: none;
+  }
+  .lang-list li { display: flex; align-items: center; gap: 6px; }
+  .lang-list i {
+    width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex-shrink: 0;
+  }
+  .lang-list b { color: var(--ink); font-weight: 600; }
+  .lang-empty { font-size: 12.5px; color: var(--muted); }
   footer { margin-top: 20px; font-size: 12.5px; color: var(--muted); line-height: 1.7; }
 </style>
 </head>
@@ -70,9 +89,10 @@
     </div>
     <div class="grid-scroll"><div id="grid"></div></div>
     <div class="legend" id="legend"></div>
+    <div class="langs" id="langs"></div>
   </div>
   <footer>
-    此頁僅包含<b>每日 commit 次數</b>的聚合統計。repo 名稱、commit 訊息、檔案路徑與 diff 內容皆不在此資料集中。<br>
+    此頁僅包含<b>每日 commit 次數</b>與全域<b>語言檔案觸及次數</b>的聚合統計。repo 名稱、commit 訊息、檔案路徑與 diff 內容皆不在此資料集中。<br>
     資料由本地資料庫離線匯出（<code>scripts/export.py</code>），手動更新。
   </footer>
 </div>
@@ -102,6 +122,40 @@
 
   const legend = document.getElementById('legend');
   legend.innerHTML = '少 ' + LEVELS.map(l => `<i style="background:${css(l)}"></i>`).join('') + ' 多';
+
+  const LANG_COLORS = [
+    '#6d5f8d', '#8f7db4', '#b0a3cb', '#5c7a6e', '#7a8f9c',
+    '#a67c7c', '#8a7a5c', '#6b7d8a', '#9a7b8f', '#6e8b74',
+  ];
+  const langsEl = document.getElementById('langs');
+  const langEntries = Object.entries(data.languages || {})
+    .filter(([, n]) => Number.isFinite(n) && n > 0)
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+  if (!langEntries.length) {
+    langsEl.innerHTML =
+      '<h2>語言分佈</h2><p class="lang-empty">尚無語言資料（需在本地重新同步 git 後再匯出）。</p>';
+  } else {
+    const langTotal = langEntries.reduce((s, [, n]) => s + n, 0);
+    // Bar: top 10 + remainder bucket. List: every language so smaller ones stay visible.
+    const top = langEntries.slice(0, 10);
+    const rest = langEntries.slice(10).reduce((s, [, n]) => s + n, 0);
+    const barSegments = rest > 0 ? [...top, ['其他', rest]] : top;
+    langsEl.innerHTML =
+      '<h2>語言分佈</h2>' +
+      `<div class="lang-bar" title="依 commit 中可辨識副檔名的檔案觸及次數（共 ${langTotal}）">` +
+      barSegments.map(([name, n], i) => {
+        const pct = (n / langTotal) * 100;
+        const color = name === '其他' ? '#c5c0ce' : LANG_COLORS[i % LANG_COLORS.length];
+        return `<span style="width:${pct}%;background:${color}" title="${name}：${n}（${pct.toFixed(1)}%）"></span>`;
+      }).join('') +
+      '</div><ul class="lang-list">' +
+      langEntries.map(([name, n], i) => {
+        const pct = ((n / langTotal) * 100).toFixed(1);
+        const color = LANG_COLORS[i % LANG_COLORS.length];
+        return `<li><i style="background:${color}"></i><b>${name}</b> ${n}（${pct}%）</li>`;
+      }).join('') +
+      '</ul>';
+  }
 
   const yearsEl = document.getElementById('years');
   years.forEach(y => {
