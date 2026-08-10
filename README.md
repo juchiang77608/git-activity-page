@@ -9,7 +9,7 @@ GitHub 風格的每日 commit 熱力圖靜態頁，資料來自本地追蹤的�
 公開的只有 `activity.json`，內容僅含：
 
 - 每日 commit「次數」（`{"YYYY-MM-DD": n}`）
-- 全域語言 → 檔案觸及次數（allowlist 語言名，無副檔名／路徑）
+- 全域／各年語言 → 檔案觸及次數（allowlist 語言名，無副檔名／路徑）
 - 匯出時間與總數
 
 repo 名稱、檔案路徑、commit 訊息、作者、diff 統計**皆不在資料集內**，也不經過任何伺服器——由 `scripts/export.py` 從本地 SQLite 離線聚合後手動 push。
@@ -36,6 +36,6 @@ python3 -m http.server 8080
 
 ```
 index.html        # 自包含熱力圖頁（無外部依賴）
-activity.json     # 唯一的資料檔（日期 → 次數、語言合計）
+activity.json     # 唯一的資料檔（日期 → 次數、語言合計／分年）
 scripts/export.py # 聚合匯出 script
 ```

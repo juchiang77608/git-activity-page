@@ -3,7 +3,7 @@
 
 Privacy boundary: ONLY the following leave the local database:
   - dates and per-day commit counts
-  - global language → file-touch totals (allowlisted language names only)
+  - global / per-year language → file-touch totals (allowlisted names only)
 
 Repo names, file paths, commit messages, authors, diff stats, and raw
 extensions never appear in the output.
@@ -18,7 +18,7 @@ import json
 import re
 import sqlite3
 import sys
-from collections import Counter
+from collections import Counter, defaultdict
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -94,7 +94,13 @@ def _safe_language(name: object) -> str | None:
     return name
 
 
-def _aggregate_languages(conn: sqlite3.Connection) -> dict[str, int]:
+def _sorted_lang_counts(counter: Counter[str]) -> dict[str, int]:
+    return dict(sorted(counter.items(), key=lambda kv: (-kv[1], kv[0])))
+
+
+def _aggregate_languages(
+    conn: sqlite3.Connection,
+) -> tuple[dict[str, int], dict[str, dict[str, int]]]:
     cols = {row[1] for row in conn.execute("PRAGMA table_info(git_commits)")}
     if "languages_json" not in cols:
         print(
@@ -102,11 +108,15 @@ def _aggregate_languages(conn: sqlite3.Connection) -> dict[str, int]:
             "API once, then re-sync git history to backfill languages",
             file=sys.stderr,
         )
-        return {}
+        return {}, {}
 
     totals: Counter[str] = Counter()
-    for (raw,) in conn.execute("SELECT languages_json FROM git_commits"):
-        if not raw:
+    by_year: dict[str, Counter[str]] = defaultdict(Counter)
+
+    for date_str, raw in conn.execute(
+        "SELECT commit_date, languages_json FROM git_commits"
+    ):
+        if not DATE_RE.match(date_str or "") or not raw:
             continue
         try:
             parsed = json.loads(raw)
@@ -114,6 +124,8 @@ def _aggregate_languages(conn: sqlite3.Connection) -> dict[str, int]:
             continue
         if not isinstance(parsed, dict):
             continue
+
+        year = date_str[:4]
         for key, value in parsed.items():
             lang = _safe_language(key)
             if lang is None:
@@ -121,17 +133,30 @@ def _aggregate_languages(conn: sqlite3.Connection) -> dict[str, int]:
             if not isinstance(value, int) or isinstance(value, bool) or value <= 0:
                 continue
             totals[lang] += value
+            by_year[year][lang] += value
 
-    return dict(sorted(totals.items(), key=lambda kv: (-kv[1], kv[0])))
+    languages = _sorted_lang_counts(totals)
+    languages_by_year = {
+        year: _sorted_lang_counts(counter)
+        for year, counter in sorted(by_year.items())
+    }
+    return languages, languages_by_year
+
+
+def _assert_lang_map(lang_map: dict[str, int]) -> None:
+    assert all(
+        _safe_language(k) and isinstance(v, int) and v > 0 for k, v in lang_map.items()
+    )
 
 
 def export(db_path: Path, out_path: Path) -> dict:
     conn = sqlite3.connect(f"file:{db_path}?mode=ro", uri=True)
     try:
         rows = conn.execute(
-            "SELECT commit_date, COUNT(*) FROM git_commits GROUP BY commit_date ORDER BY commit_date"
+            "SELECT commit_date, COUNT(*) FROM git_commits "
+            "GROUP BY commit_date ORDER BY commit_date"
         ).fetchall()
-        languages = _aggregate_languages(conn)
+        languages, languages_by_year = _aggregate_languages(conn)
     finally:
         conn.close()
 
@@ -147,12 +172,21 @@ def export(db_path: Path, out_path: Path) -> dict:
         "total": sum(counts.values()),
         "counts": counts,
         "languages": languages,
+        "languages_by_year": languages_by_year,
     }
 
     # Guard: refuse to write anything but the expected keys.
-    assert set(payload) == {"generated_at", "total", "counts", "languages"}
-    # Guard: language keys must remain allowlisted scalars.
-    assert all(_safe_language(k) and isinstance(v, int) and v > 0 for k, v in languages.items())
+    assert set(payload) == {
+        "generated_at",
+        "total",
+        "counts",
+        "languages",
+        "languages_by_year",
+    }
+    _assert_lang_map(languages)
+    assert all(DATE_RE.match(f"{y}-01-01") for y in languages_by_year)
+    for year_map in languages_by_year.values():
+        _assert_lang_map(year_map)
 
     out_path.write_text(
         json.dumps(payload, ensure_ascii=False, indent=0) + "\n", encoding="utf-8"
@@ -177,9 +211,10 @@ def main() -> None:
     payload = export(args.db, args.out)
     days = len(payload["counts"])
     langs = len(payload["languages"])
+    years = len(payload["languages_by_year"])
     print(
         f"exported {payload['total']} commits across {days} days, "
-        f"{langs} languages -> {args.out}"
+        f"{langs} languages / {years} years -> {args.out}"
     )
 
 
