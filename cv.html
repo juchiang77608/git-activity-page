@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>履歷 · Janice</title>
+<style>
+  :root {
+    --bg: #f0eeeb;
+    --card: #ffffff;
+    --ink: #2b2733;
+    --muted: #7a7385;
+    --accent: #8b7fa8;
+    --accent-dark: #6d5f8d;
+    --line: #e7e4ee;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+  }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 40px 24px 108px;
+    line-height: 1.7;
+  }
+  .wrap { max-width: 640px; margin: 0 auto; }
+  .toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+  h1 { font-size: 26px; margin: 0; letter-spacing: -0.02em; }
+  .langs { display: flex; gap: 6px; }
+  .langs button {
+    border: 1px solid #d8d3e0; background: #faf9fb; color: var(--ink);
+    border-radius: 8px; padding: 5px 14px; font-size: 13px; cursor: pointer;
+  }
+  .langs button.active {
+    background: var(--accent); border-color: var(--accent);
+    color: #fff; font-weight: 600;
+  }
+  .langs button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .lead {
+    font-size: 18px;
+    line-height: 1.45;
+    margin: 10px 0 18px;
+  }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 28px; }
+  h2 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 32px 0 12px;
+  }
+  .job {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 20px 24px;
+    box-shadow: 0 1px 3px rgba(43,39,51,.08);
+    margin-bottom: 12px;
+  }
+  .job h3 { font-size: 16px; margin: 0 0 4px; }
+  .job .meta { color: var(--muted); font-size: 13px; margin: 0 0 10px; }
+  .job ul { margin: 0; padding-left: 1.2em; }
+  .job li { margin: 4px 0; }
+  .skills { padding: 0; margin: 0; list-style: none; }
+  .skills li {
+    margin: 0 0 12px;
+    font-size: 14.5px;
+  }
+  .skills b {
+    display: inline-block;
+    min-width: 3.2em;
+    color: var(--accent-dark);
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 8px;
+    vertical-align: top;
+    padding-top: 2px;
+  }
+  .edu { margin: 0 0 8px; }
+  footer { margin-top: 36px; font-size: 12.5px; color: var(--muted); }
+  .site-nav {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    z-index: 3000;
+    width: min(560px, calc(100vw - 32px));
+  }
+  .site-nav-panel {
+    margin-bottom: 8px;
+    background: var(--ink);
+    border-radius: 22px;
+    padding: 18px 28px 14px;
+    box-shadow: 0 16px 40px rgba(43, 39, 51, 0.28);
+  }
+  .site-nav-panel a {
+    display: block;
+    padding: 11px 0;
+    color: rgba(240, 238, 235, 0.5);
+    text-decoration: none;
+    font-size: 17px;
+    line-height: 1.4;
+  }
+  .site-nav-panel a:hover { color: #f0eeeb; }
+  .site-nav-panel a[aria-current="page"] {
+    color: #f0eeeb;
+    text-decoration: underline;
+    text-underline-offset: 6px;
+    text-decoration-thickness: 1px;
+  }
+  .site-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    border: 0;
+    border-radius: 999px;
+    padding: 13px 20px;
+    background: var(--ink);
+    color: #f0eeeb;
+    font: inherit;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 10px 28px rgba(43, 39, 51, 0.28);
+  }
+  .site-nav-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .site-nav-bars {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    width: 14px;
+  }
+  .site-nav-bars i {
+    display: block;
+    height: 1.5px;
+    background: #f0eeeb;
+    border-radius: 1px;
+  }
+  .site-nav-panel { display: none; }
+  .site-nav.is-open .site-nav-panel { display: block; }
+  @media (min-width: 1280px) {
+    .site-nav { width: auto; }
+    .site-nav-btn { display: none; }
+    .site-nav-panel,
+    .site-nav.is-open .site-nav-panel {
+      display: flex;
+      margin: 0;
+      padding: 8px 32px;
+      gap: 28px;
+      align-items: center;
+      border-radius: 999px;
+    }
+    .site-nav-panel a {
+      padding: 8px 0;
+      font-size: 15px;
+      white-space: nowrap;
+    }
+  }
+  .to-top {
+    position: fixed;
+    right: 20px;
+    bottom: 86px;
+    z-index: 2990;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #f0eeeb;
+    cursor: pointer;
+    display: grid;
+    place-items: center;
+    box-shadow: 0 10px 28px rgba(43, 39, 51, 0.28);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(6px);
+    transition: opacity 0.25s ease, transform 0.25s ease;
+  }
+  .to-top.is-shown {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+  .to-top:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .to-top svg { display: block; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="toolbar">
+    <h1>Janice</h1>
+    <div class="langs" role="group" aria-label="Language">
+      <button type="button" data-lang="zh-Hant" class="active">中文</button>
+      <button type="button" data-lang="en">English</button>
+    </div>
+  </div>
+
+  <div data-copy="zh">
+    <p class="lead">前端工程師，目前擔任技術經理。做企業後台，也把設計與規格做成可用的產品。</p>
+    <p class="sub">桃園或 Remote　·　8+ 年</p>
+
+    <h2>經歷</h2>
+    <article class="job">
+      <h3>技術經理</h3>
+      <p class="meta">昕力資訊 · 2024/04 – 至今</p>
+      <ul>
+        <li>金融業駐點後台：依規格實作，串身份驗證與既有 API。</li>
+        <li>主導 Angular 大版本升級，並用微前端把 Vue 模組接進 Angular。</li>
+        <li>建立 Playwright 的 E2E、API 與單元測試，讓交付比較穩。</li>
+      </ul>
+    </article>
+    <article class="job">
+      <h3>前端系統設計師（SD）</h3>
+      <p class="meta">緯創軟體 · 2022/08 – 2024/03</p>
+      <ul>
+        <li>駐點撰寫 SD、對齊原型與流程，再做前端實作。</li>
+        <li>改開源模板並接到既有內部平台；在多環境測試與調整。</li>
+      </ul>
+    </article>
+    <article class="job">
+      <h3>前端工程師</h3>
+      <p class="meta">Elmo Tech · 2022/05 – 2022/08</p>
+      <ul>
+        <li>Vue 後台：權限與訂單流程。</li>
+        <li>把重複 UI 抽成 npm 套件與 Web Components。</li>
+      </ul>
+    </article>
+    <article class="job">
+      <h3>資深研發工程師</h3>
+      <p class="meta">培宇數位 · 2021/04 – 2022/05</p>
+      <ul>
+        <li>Angular CRM：把操作與資料呈現做得比較直覺。</li>
+      </ul>
+    </article>
+    <article class="job">
+      <h3>前端工程師</h3>
+      <p class="meta">銳思資訊 · 2018/01 – 2021/04</p>
+      <ul>
+        <li>參與 Angular 4 到 11 的長期升級與維運。</li>
+        <li>NGRX / RxJS 處理狀態與 API；與後端協作容器部署。</li>
+        <li>用靜態站維護前端規範與多語系原則。</li>
+      </ul>
+    </article>
+    <article class="job">
+      <h3>前端設計師</h3>
+      <p class="meta">金貝科技 · 2017/07 – 2017/11</p>
+      <ul>
+        <li>Vue 後台與行動版切版維護。</li>
+      </ul>
+    </article>
+    <article class="job">
+      <h3>網頁設計師</h3>
+      <p class="meta">智慧時尚 · 2013/05 – 2017/07</p>
+      <ul>
+        <li>活動頁模組化產出，並設定分析事件追蹤成效。</li>
+        <li>把設計稿做成 RWD 官網。</li>
+      </ul>
+    </article>
+    <article class="job">
+      <h3>個人外包</h3>
+      <p class="meta">2015 – 現在</p>
+      <ul>
+        <li>企業站與開店平台的 RWD／版型客製（Bootstrap、Shopify）。</li>
+      </ul>
+    </article>
+
+    <h2>技能</h2>
+    <ul class="skills">
+      <li><b>精通</b> Angular、TypeScript、RxJS、PrimeNG、API 串接、SCSS、Git</li>
+      <li><b>實戰</b> Vue、React、Playwright、Cypress、Jest、Docker、Nx、微前端</li>
+      <li><b>學習</b> 演算法、Rust / WebAssembly、GraphQL</li>
+    </ul>
+
+    <h2>學歷</h2>
+    <p class="edu"><strong>玄奘大學</strong>　視覺傳達設計學系　學士　·　2006 – 2010</p>
+  </div>
+
+  <div data-copy="en" hidden>
+    <p class="lead">Frontend engineer, currently a technical manager. I build enterprise admin UIs and turn design and specs into shipping software.</p>
+    <p class="sub">Taoyuan or remote　·　8+ years</p>
+
+    <h2>Experience</h2>
+    <article class="job">
+      <h3>Technical Manager</h3>
+      <p class="meta">TPISoftware · Apr 2024 – present</p>
+      <ul>
+        <li>On-site enterprise admin for a financial client: specs to implementation, auth and existing APIs.</li>
+        <li>Led a major Angular upgrade and wired Vue modules in via micro-frontends.</li>
+        <li>Added Playwright E2E, API, and unit tests so releases were less fragile.</li>
+      </ul>
+    </article>
+    <article class="job">
+      <h3>Frontend system designer (SD)</h3>
+      <p class="meta">Wistron Information (WITS) · Aug 2022 – Mar 2024</p>
+      <ul>
+        <li>On-site SD writing, prototype alignment, then frontend build.</li>
+        <li>Adapted an open-source template onto an existing internal platform; tested across environments.</li>
+      </ul>
+    </article>
+    <article class="job">
+      <h3>Frontend engineer</h3>
+      <p class="meta">Elmo Tech · May 2022 – Aug 2022</p>
+      <ul>
+        <li>Vue admin: permissions and order flows.</li>
+        <li>Extracted repeated UI into an npm package and Web Components.</li>
+      </ul>
+    </article>
+    <article class="job">
+      <h3>Senior R&amp;D engineer</h3>
+      <p class="meta">培宇數位 · Apr 2021 – May 2022</p>
+      <ul>
+        <li>Angular CRM: clearer operations and data display.</li>
+      </ul>
+    </article>
+    <article class="job">
+      <h3>Frontend engineer</h3>
+      <p class="meta">銳思資訊 · Jan 2018 – Apr 2021</p>
+      <ul>
+        <li>Long-running Angular 4 → 11 upgrades and upkeep.</li>
+        <li>NGRX / RxJS for state and APIs; container deploys with backend.</li>
+        <li>Maintained frontend standards as a static docs site.</li>
+      </ul>
+    </article>
+    <article class="job">
+      <h3>Frontend designer</h3>
+      <p class="meta">金貝科技 · Jul 2017 – Nov 2017</p>
+      <ul>
+        <li>Vue admin and mobile layout maintenance.</li>
+      </ul>
+    </article>
+    <article class="job">
+      <h3>Web designer</h3>
+      <p class="meta">智慧時尚 · May 2013 – Jul 2017</p>
+      <ul>
+        <li>Modular campaign pages and analytics event setup.</li>
+        <li>Turned design comps into responsive sites.</li>
+      </ul>
+    </article>
+    <article class="job">
+      <h3>Freelance</h3>
+      <p class="meta">2015 – present</p>
+      <ul>
+        <li>RWD and theme work for company and store sites (Bootstrap, Shopify).</li>
+      </ul>
+    </article>
+
+    <h2>Skills</h2>
+    <ul class="skills">
+      <li><b>Strong</b> Angular, TypeScript, RxJS, PrimeNG, API integration, SCSS, Git</li>
+      <li><b>Hands-on</b> Vue, React, Playwright, Cypress, Jest, Docker, Nx, micro-frontends</li>
+      <li><b>Learning</b> Algorithms, Rust / WebAssembly, GraphQL</li>
+    </ul>
+
+    <h2>Education</h2>
+    <p class="edu"><strong>Hsuan Chuang University</strong>　B.A. Visual Communication Design　·　2006 – 2010</p>
+  </div>
+  <footer>© 2026 Janice Chiang</footer>
+</div>
+<button type="button" class="to-top" id="to-top" aria-label="Back to top" tabindex="-1">
+  <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+    <path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M6 14.5 12 8.5l6 6"/>
+  </svg>
+</button>
+<nav class="site-nav" aria-label="網站選單">
+  <div class="site-nav-panel" id="site-nav-panel">
+    <a href="index.html">首頁</a>
+    <a href="cv.html" aria-current="page">履歷</a>
+    <a href="activity.html">Git 活動</a>
+    <a href="adr.html">架構決策</a>
+  </div>
+  <button type="button" class="site-nav-btn" aria-expanded="false" aria-controls="site-nav-panel">
+    <span class="site-nav-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+    選單
+  </button>
+</nav>
+<script>
+(function () {
+  const root = document.querySelector('.site-nav');
+  const btn = root && root.querySelector('.site-nav-btn');
+  const panel = document.getElementById('site-nav-panel');
+  if (!root || !btn || !panel) return;
+  const setOpen = (open) => {
+    root.classList.toggle('is-open', open);
+    btn.setAttribute('aria-expanded', String(open));
+  };
+  btn.addEventListener('click', () => setOpen(!root.classList.contains('is-open')));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setOpen(false);
+  });
+  document.addEventListener('click', (e) => {
+    if (!root.contains(e.target)) setOpen(false);
+  });
+})();
+(function () {
+  const btn = document.getElementById('to-top');
+  if (!btn) return;
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const setShown = (shown) => {
+    btn.classList.toggle('is-shown', shown);
+    btn.tabIndex = shown ? 0 : -1;
+  };
+  const onScroll = () => setShown(window.scrollY > 240);
+  btn.addEventListener('click', () => {
+    window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' });
+  });
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+})();
+(function () {
+  const buttons = [...document.querySelectorAll('.langs button')];
+  const copies = [...document.querySelectorAll('[data-copy]')];
+  const KEY = 'cv-lang';
+  const setLang = (lang) => {
+    document.documentElement.lang = lang;
+    buttons.forEach((b) => b.classList.toggle('active', b.dataset.lang === lang));
+    copies.forEach((el) => {
+      el.hidden = el.dataset.copy !== (lang === 'en' ? 'en' : 'zh');
+    });
+    const top = document.getElementById('to-top');
+    if (top) top.setAttribute('aria-label', lang === 'en' ? 'Back to top' : '回到最上面');
+    try { sessionStorage.setItem(KEY, lang); } catch (_) { /* ignore */ }
+  };
+  buttons.forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang)));
+  let start = 'zh-Hant';
+  try {
+    const saved = sessionStorage.getItem(KEY);
+    if (saved === 'en' || saved === 'zh-Hant') start = saved;
+  } catch (_) { /* ignore */ }
+  setLang(start);
+})();
+</script>
+</body>
+</html>

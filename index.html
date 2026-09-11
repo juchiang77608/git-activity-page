@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Git 活動</title>
+<title>Janice</title>
 <style>
   :root {
     --bg: #f0eeeb;
@@ -12,11 +12,7 @@
     --muted: #7a7385;
     --accent: #8b7fa8;
     --accent-dark: #6d5f8d;
-    --cell-0: #e7e4ee;
-    --cell-1: #cfc7de;
-    --cell-2: #b0a3cb;
-    --cell-3: #8f7db4;
-    --cell-4: #6d5f8d;
+    --line: #e7e4ee;
   }
   * { box-sizing: border-box; }
   body {
@@ -25,77 +21,32 @@
     background: var(--bg);
     color: var(--ink);
     padding: 40px 24px 108px;
+    line-height: 1.7;
   }
-  .wrap { max-width: 1400px; margin: 0 auto; }
-  h1 { font-size: 26px; margin: 0 0 6px; }
-  .sub { color: var(--muted); font-size: 14px; margin-bottom: 24px; }
-  .card {
-    background: var(--card);
-    border-radius: 12px;
-    padding: 24px;
-    box-shadow: 0 1px 3px rgba(43,39,51,.08);
+  .wrap { max-width: 640px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 10px; letter-spacing: -0.02em; }
+  .lead {
+    font-size: 20px;
+    line-height: 1.45;
+    margin: 0 0 28px;
   }
-  .toolbar {
-    display: flex; align-items: center; justify-content: space-between;
-    flex-wrap: wrap; gap: 12px; margin-bottom: 18px;
+  p { margin: 0 0 14px; }
+  h2 {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 32px 0 10px;
   }
-  .total { font-size: 15px; font-weight: 600; }
-  .years { display: flex; gap: 6px; flex-wrap: wrap; }
-  .years button {
-    border: 1px solid #d8d3e0; background: #faf9fb; color: var(--ink);
-    border-radius: 8px; padding: 5px 14px; font-size: 13px; cursor: pointer;
+  .contact {
+    list-style: none;
+    padding: 0;
+    margin: 0;
   }
-  .years button.active {
-    background: var(--accent); border-color: var(--accent);
-    color: #fff; font-weight: 600;
+  .contact a {
+    color: var(--accent-dark);
+    text-decoration: none;
   }
-  .grid-scroll { overflow-x: auto; padding-bottom: 4px; width: 100%; }
-  #grid { width: 100%; }
-  #grid svg { display: block; width: 100%; height: auto; }
-  svg .axis { fill: var(--muted); }
-  svg .cell-n { font-weight: 600; pointer-events: none; }
-  svg rect[data-tip] { cursor: default; }
-  .heatmap-tooltip {
-    position: fixed;
-    z-index: 2000;
-    transform: translate(-50%, calc(-100% - 10px));
-    padding: 0.35rem 0.55rem;
-    border-radius: 6px;
-    background: rgba(58, 53, 64, 0.92);
-    color: #fff;
-    font-size: 0.78rem;
-    white-space: nowrap;
-    pointer-events: none;
-  }
-  .legend {
-    display: flex; align-items: center; gap: 4px; justify-content: flex-end;
-    margin-top: 10px; font-size: 12px; color: var(--muted);
-  }
-  .legend i { width: 11px; height: 11px; border-radius: 2px; display: inline-block; }
-  .langs { margin-top: 22px; }
-  .langs h2 {
-    font-size: 14px; font-weight: 600; margin: 0 0 4px; color: var(--ink);
-  }
-  .langs .hint {
-    font-size: 12px; color: var(--muted); margin: 0 0 10px;
-  }
-  .lang-bar {
-    display: flex; height: 10px; border-radius: 999px; overflow: hidden;
-    background: var(--cell-0);
-  }
-  .lang-bar span { display: block; height: 100%; min-width: 0; }
-  .lang-list {
-    display: flex; flex-wrap: wrap; gap: 10px 18px; margin-top: 12px;
-    font-size: 12.5px; color: var(--muted); padding: 0; list-style: none;
-  }
-  .lang-list li { display: flex; align-items: center; gap: 6px; }
-  .lang-list i {
-    width: 9px; height: 9px; border-radius: 50%; display: inline-block; flex-shrink: 0;
-  }
-  .lang-list b { color: var(--ink); font-weight: 600; }
-  .lang-empty { font-size: 12.5px; color: var(--muted); margin: 0; }
-  footer { margin-top: 20px; font-size: 12.5px; color: var(--muted); line-height: 1.7; }
-  footer a { color: var(--accent-dark); }
+  .contact a:hover { text-decoration: underline; }
+  footer { margin-top: 36px; font-size: 12.5px; color: var(--muted); }
   .site-nav {
     position: fixed;
     left: 50%;
@@ -117,6 +68,7 @@
     color: rgba(240, 238, 235, 0.5);
     text-decoration: none;
     font-size: 17px;
+    line-height: 1.4;
   }
   .site-nav-panel a:hover { color: #f0eeeb; }
   .site-nav-panel a[aria-current="page"] {
@@ -158,30 +110,51 @@
     background: #f0eeeb;
     border-radius: 1px;
   }
+  .site-nav-panel { display: none; }
+  .site-nav.is-open .site-nav-panel { display: block; }
+  @media (min-width: 1280px) {
+    .site-nav { width: auto; }
+    .site-nav-btn { display: none; }
+    .site-nav-panel,
+    .site-nav.is-open .site-nav-panel {
+      display: flex;
+      margin: 0;
+      padding: 8px 32px;
+      gap: 28px;
+      align-items: center;
+      border-radius: 999px;
+    }
+    .site-nav-panel a {
+      padding: 8px 0;
+      font-size: 15px;
+      white-space: nowrap;
+    }
+  }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <h1>Git 活動</h1>
-  <div class="sub" id="meta">載入中…</div>
-  <div class="card">
-    <div class="toolbar">
-      <div class="total" id="total"></div>
-      <div class="years" id="years"></div>
-    </div>
-    <div class="grid-scroll"><div id="grid"></div></div>
-    <div class="heatmap-tooltip" id="heatmap-tooltip" hidden></div>
-    <div class="legend" id="legend"></div>
-    <div class="langs" id="langs"></div>
-  </div>
-  <footer>
-    此頁僅包含<b>每日 commit 次數</b>與各年<b>語言檔案觸及次數</b>的聚合統計。repo 名稱、commit 訊息、檔案路徑與 diff 內容皆不在此資料集中。<br>
-    資料由本地資料庫離線匯出（<code>scripts/export.py</code>），手動更新。
-  </footer>
+  <h1>Janice</h1>
+ <p class="lead">寫前端，也喜歡把複雜的事情整理清楚。</p>
+
+<p>這裡是我的小站，放一些工作之外也想留下來的東西：職涯走過的路、技術實作、開發時的思考，以及一些還在慢慢成形的嘗試。</p>
+
+<p>過去十多年，我大多在大型企業與金融系統裡工作，從網頁切版一路走到 Angular、大型前端架構與技術管理。現在依然在寫程式，也在思考怎麼讓設計、規格、工程與產品真正接得起來。</p>
+
+<p>至於客戶專案，因為保密條款不能放太多細節，所以這裡不展示專案名稱、畫面或原始碼。能公開的，就留下來；值得分享的，就慢慢寫下來。</p>
+
+  <h2>聯絡</h2>
+  <ul class="contact">
+    <li><a href="https://github.com/juchiang77608">GitHub @juchiang77608</a></li>
+    <li><a href="https://www.linkedin.com/in/juchiang">LinkedIn</a></li>
+  </ul>
+  <footer>© 2026 Janice Chiang</footer>
 </div>
 <nav class="site-nav" aria-label="網站選單">
-  <div class="site-nav-panel" id="site-nav-panel" hidden>
-    <a href="index.html" aria-current="page">Git 活動</a>
+  <div class="site-nav-panel" id="site-nav-panel">
+    <a href="index.html" aria-current="page">首頁</a>
+    <a href="cv.html">履歷</a>
+    <a href="activity.html">Git 活動</a>
     <a href="adr.html">架構決策</a>
   </div>
   <button type="button" class="site-nav-btn" aria-expanded="false" aria-controls="site-nav-panel">
@@ -196,202 +169,15 @@
   const panel = document.getElementById('site-nav-panel');
   if (!root || !btn || !panel) return;
   const setOpen = (open) => {
-    panel.hidden = !open;
+    root.classList.toggle('is-open', open);
     btn.setAttribute('aria-expanded', String(open));
   };
-  btn.addEventListener('click', () => setOpen(panel.hidden));
+  btn.addEventListener('click', () => setOpen(!root.classList.contains('is-open')));
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') setOpen(false);
   });
   document.addEventListener('click', (e) => {
     if (!root.contains(e.target)) setOpen(false);
-  });
-})();
-</script>
-<script>
-(async function () {
-  // Match 生活總帳本 year heatmap: cells stretch to fill the card width.
-  const GAP = 4, TOP = 20, LEFT = 28;
-  const LEVELS = ['--cell-0','--cell-1','--cell-2','--cell-3','--cell-4'];
-  const css = v => getComputedStyle(document.documentElement).getPropertyValue(v).trim();
-  const MONTHS = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月'];
-  const DAYS = { 1: '一', 3: '三', 5: '五' };
-  const LANG_COLORS = [
-    '#6d5f8d', '#8f7db4', '#b0a3cb', '#5c7a6e', '#7a8f9c',
-    '#a67c7c', '#8a7a5c', '#6b7d8a', '#9a7b8f', '#6e8b74',
-  ];
-  let currentYear = null;
-
-  let data;
-  try {
-    data = await (await fetch('activity.json', { cache: 'no-store' })).json();
-  } catch (e) {
-    document.getElementById('meta').textContent =
-      '無法載入 activity.json — 若在本機開啟，請先執行 python3 -m http.server 再瀏覽。';
-    return;
-  }
-
-  const counts = data.counts || {};
-  const years = [...new Set(Object.keys(counts).map(d => d.slice(0, 4)))].sort().reverse();
-  if (!years.length) { document.getElementById('meta').textContent = '尚無資料。'; return; }
-
-  document.getElementById('meta').textContent =
-    `共 ${data.total} 筆 commit ・ 資料更新於 ${(data.generated_at || '').slice(0, 10)}`;
-
-  const legend = document.getElementById('legend');
-  legend.innerHTML = '少 ' + LEVELS.map(l => `<i style="background:${css(l)}"></i>`).join('') + ' 多';
-
-  const langsEl = document.getElementById('langs');
-  const yearsEl = document.getElementById('years');
-  const gridEl = document.getElementById('grid');
-  const tipEl = document.getElementById('heatmap-tooltip');
-
-  function tipText(date, n) {
-    return n <= 0 ? `${date}：無 commit` : `${date}：${n} 個 commit`;
-  }
-
-  function hideTip() {
-    tipEl.hidden = true;
-  }
-
-  function showTip(text, clientX, clientY) {
-    tipEl.hidden = false;
-    tipEl.textContent = text;
-    tipEl.style.left = clientX + 'px';
-    tipEl.style.top = clientY + 'px';
-  }
-
-  gridEl.addEventListener('mousemove', (e) => {
-    const cell = e.target.closest('rect[data-tip]');
-    if (!cell) { hideTip(); return; }
-    showTip(cell.getAttribute('data-tip'), e.clientX, e.clientY);
-  });
-  gridEl.addEventListener('mouseleave', hideTip);
-
-  years.forEach(y => {
-    const b = document.createElement('button');
-    b.textContent = y;
-    b.onclick = () => render(y);
-    yearsEl.appendChild(b);
-  });
-
-  function fmtPct(n, total) {
-    const pct = (n / total) * 100;
-    if (pct > 0 && pct < 0.1) return '<0.1%';
-    return pct.toFixed(1) + '%';
-  }
-
-  function langEntriesForYear(year) {
-    const byYear = data.languages_by_year || {};
-    const src = byYear[year] || {};
-    return Object.entries(src)
-      .filter(([, n]) => Number.isFinite(n) && n > 0)
-      .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
-  }
-
-  function renderLangs(year) {
-    const langEntries = langEntriesForYear(year);
-    if (!langEntries.length) {
-      langsEl.innerHTML =
-        `<h2>語言分佈（${year}）</h2>` +
-        '<p class="hint">單位：commit 中可辨識副檔名的檔案觸及次數</p>' +
-        '<p class="lang-empty">此年尚無語言資料。</p>';
-      return;
-    }
-
-    const langTotal = langEntries.reduce((s, [, n]) => s + n, 0);
-    const top = langEntries.slice(0, 10);
-    const rest = langEntries.slice(10).reduce((s, [, n]) => s + n, 0);
-    const barSegments = rest > 0 ? [...top, ['其他', rest]] : top;
-
-    langsEl.innerHTML =
-      `<h2>語言分佈（${year}）</h2>` +
-      `<p class="hint">單位：檔案觸及次數（共 ${langTotal}）・隨上方年份切換</p>` +
-      `<div class="lang-bar" title="檔案觸及次數共 ${langTotal}">` +
-      barSegments.map(([name, n], i) => {
-        const pct = (n / langTotal) * 100;
-        const color = name === '其他' ? '#c5c0ce' : LANG_COLORS[i % LANG_COLORS.length];
-        return `<span style="width:${pct}%;background:${color}" title="${name}：${n}（${fmtPct(n, langTotal)}）"></span>`;
-      }).join('') +
-      '</div><ul class="lang-list">' +
-      langEntries.map(([name, n], i) => {
-        const color = LANG_COLORS[i % LANG_COLORS.length];
-        return `<li><i style="background:${color}"></i><b>${name}</b> ${n}（${fmtPct(n, langTotal)}）</li>`;
-      }).join('') +
-      '</ul>';
-  }
-
-  function cellSize(ncols) {
-    const scroll = gridEl.parentElement;
-    const avail = Math.max(320, scroll.clientWidth || 0);
-    // Fill card width like 生活總帳本 year heatmap (minmax 1fr cells).
-    const size = Math.floor((avail - LEFT) / ncols - GAP);
-    return Math.max(14, Math.min(size, 32));
-  }
-
-  function render(year) {
-    currentYear = year;
-    [...yearsEl.children].forEach(b => b.classList.toggle('active', b.textContent === year));
-    const start = new Date(year + '-01-01T00:00:00');
-    const end = new Date(year + '-12-31T00:00:00');
-    const firstCol = new Date(start);
-    firstCol.setDate(firstCol.getDate() - firstCol.getDay()); // back to Sunday
-
-    let yearTotal = 0, max = 0;
-    const cells = [];
-    for (let d = new Date(firstCol), col = 0; d <= end; col++) {
-      for (let row = 0; row < 7; row++, d.setDate(d.getDate() + 1)) {
-        if (d < start || d > end) continue;
-        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        const n = counts[key] || 0;
-        yearTotal += n; max = Math.max(max, n);
-        cells.push({ col, row, key, n, month: d.getMonth(), date: d.getDate() });
-      }
-    }
-    document.getElementById('total').textContent = `${yearTotal} 次 commit（${year} 年）`;
-
-    const ncols = Math.max(...cells.map(c => c.col)) + 1;
-    const CELL = cellSize(ncols);
-    const axisSize = Math.max(10, Math.round(CELL * 0.45));
-    const numSize = Math.max(9, Math.round(CELL * 0.42));
-    const step = CELL + GAP;
-    const W = LEFT + ncols * step - GAP;
-    const H = TOP + 7 * step - GAP;
-    let svg = `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-label="${year} 年每日 commit 熱力圖">`;
-
-    let lastMonth = -1;
-    cells.filter(c => c.row === 0 || (c.date === 1)).forEach(c => {
-      if (c.month !== lastMonth) {
-        svg += `<text class="axis" x="${LEFT + c.col * step}" y="${axisSize}" font-size="${axisSize}">${MONTHS[c.month]}</text>`;
-        lastMonth = c.month;
-      }
-    });
-    for (const [row, label] of Object.entries(DAYS)) {
-      svg += `<text class="axis" x="0" y="${TOP + row * step + CELL - 2}" font-size="${axisSize}">${label}</text>`;
-    }
-    for (const c of cells) {
-      const lvl = c.n === 0 ? 0 : Math.min(4, Math.ceil((c.n / max) * 4));
-      const x = LEFT + c.col * step;
-      const y = TOP + c.row * step;
-      const tip = tipText(c.key, c.n);
-      const rx = Math.max(2.5, CELL * 0.16);
-      svg += `<rect x="${x}" y="${y}" width="${CELL}" height="${CELL}" rx="${rx}"
-        fill="${css(LEVELS[lvl])}" data-tip="${tip}" aria-label="${tip}"></rect>`;
-      if (c.n > 0) {
-        const fill = lvl >= 3 ? '#ffffff' : css('--ink');
-        svg += `<text class="cell-n" x="${x + CELL / 2}" y="${y + CELL / 2 + 0.5}"
-          text-anchor="middle" dominant-baseline="central" fill="${fill}" font-size="${numSize}">${c.n}</text>`;
-      }
-    }
-    svg += '</svg>';
-    hideTip();
-    gridEl.innerHTML = svg;
-    renderLangs(year);
-  }
-
-  render(years[0]);
-  window.addEventListener('resize', () => {
-    if (currentYear) render(currentYear);
   });
 })();
 </script>

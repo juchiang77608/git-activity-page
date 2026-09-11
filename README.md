@@ -1,6 +1,6 @@
 # git-activity-page
 
-GitHub 風格的每日 commit 熱力圖靜態頁，資料來自本地追蹤的多個 git repo（含未推上遠端的私有專案）。
+Janice 的靜態個人頁。首頁是自我介紹；履歷是中英切換的公開切片（不含客戶與產品名）；Git 活動是 GitHub 風格的每日 commit 熱力圖，資料來自本地追蹤的多個 git repo（含未推上遠端的私有專案）。
 
 線上版：GitHub Pages（設定 repo → Settings → Pages → Deploy from branch → `main` / root）
 
@@ -34,12 +34,14 @@ python3 -m http.server 8080
 
 ## 架構決策（ADR）
 
-訪客從熱力圖頁可進 [`adr.html`](adr.html)（排版過的 HTML，不必讀 Markdown）。Markdown 原文在 [`docs/adr/`](docs/adr/README.md)。
+訪客從選單可進 [`adr.html`](adr.html)（排版過的 HTML，不必讀 Markdown）。Markdown 原文在 [`docs/adr/`](docs/adr/README.md)。
 
 ## 結構
 
 ```
-index.html        # 自包含熱力圖頁（無外部依賴）
+index.html        # 首頁
+cv.html           # 公開履歷（中英切換，匿名專案）
+activity.html     # 自包含熱力圖頁（無外部依賴）
 adr.html          # 公開架構決策（給訪客看的 HTML）
 activity.json     # 唯一的資料檔（日期 → 次數、語言合計／分年）
 scripts/export.py # 聚合匯出 script
