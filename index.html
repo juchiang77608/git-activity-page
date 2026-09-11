@@ -24,7 +24,7 @@
     font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Segoe UI", sans-serif;
     background: var(--bg);
     color: var(--ink);
-    padding: 40px 24px;
+    padding: 40px 24px 108px;
   }
   .wrap { max-width: 1400px; margin: 0 auto; }
   h1 { font-size: 26px; margin: 0 0 6px; }
@@ -95,6 +95,69 @@
   .lang-list b { color: var(--ink); font-weight: 600; }
   .lang-empty { font-size: 12.5px; color: var(--muted); margin: 0; }
   footer { margin-top: 20px; font-size: 12.5px; color: var(--muted); line-height: 1.7; }
+  footer a { color: var(--accent-dark); }
+  .site-nav {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    z-index: 3000;
+    width: min(560px, calc(100vw - 32px));
+  }
+  .site-nav-panel {
+    margin-bottom: 8px;
+    background: var(--ink);
+    border-radius: 22px;
+    padding: 18px 28px 14px;
+    box-shadow: 0 16px 40px rgba(43, 39, 51, 0.28);
+  }
+  .site-nav-panel a {
+    display: block;
+    padding: 11px 0;
+    color: rgba(240, 238, 235, 0.5);
+    text-decoration: none;
+    font-size: 17px;
+  }
+  .site-nav-panel a:hover { color: #f0eeeb; }
+  .site-nav-panel a[aria-current="page"] {
+    color: #f0eeeb;
+    text-decoration: underline;
+    text-underline-offset: 6px;
+    text-decoration-thickness: 1px;
+  }
+  .site-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    border: 0;
+    border-radius: 999px;
+    padding: 13px 20px;
+    background: var(--ink);
+    color: #f0eeeb;
+    font: inherit;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 10px 28px rgba(43, 39, 51, 0.28);
+  }
+  .site-nav-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .site-nav-bars {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    width: 14px;
+  }
+  .site-nav-bars i {
+    display: block;
+    height: 1.5px;
+    background: #f0eeeb;
+    border-radius: 1px;
+  }
 </style>
 </head>
 <body>
@@ -116,6 +179,35 @@
     資料由本地資料庫離線匯出（<code>scripts/export.py</code>），手動更新。
   </footer>
 </div>
+<nav class="site-nav" aria-label="網站選單">
+  <div class="site-nav-panel" id="site-nav-panel" hidden>
+    <a href="index.html" aria-current="page">Git 活動</a>
+    <a href="adr.html">架構決策</a>
+  </div>
+  <button type="button" class="site-nav-btn" aria-expanded="false" aria-controls="site-nav-panel">
+    <span class="site-nav-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+    選單
+  </button>
+</nav>
+<script>
+(function () {
+  const root = document.querySelector('.site-nav');
+  const btn = root && root.querySelector('.site-nav-btn');
+  const panel = document.getElementById('site-nav-panel');
+  if (!root || !btn || !panel) return;
+  const setOpen = (open) => {
+    panel.hidden = !open;
+    btn.setAttribute('aria-expanded', String(open));
+  };
+  btn.addEventListener('click', () => setOpen(panel.hidden));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setOpen(false);
+  });
+  document.addEventListener('click', (e) => {
+    if (!root.contains(e.target)) setOpen(false);
+  });
+})();
+</script>
 <script>
 (async function () {
   // Match 生活總帳本 year heatmap: cells stretch to fill the card width.

@@ -9,7 +9,7 @@ Repo names, file paths, commit messages, authors, diff stats, and raw
 extensions never appear in the output.
 
 Usage:
-    python3 scripts/export.py --db /path/to/attendance.db [--out activity.json]
+    python3 scripts/export.py --db /path/to/local.sqlite [--out activity.json]
 """
 from __future__ import annotations
 
@@ -26,7 +26,7 @@ DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 # Reject anything that could be a path or extension leak.
 SAFE_LANG_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+#. -]{0,63}$")
 
-# Must stay in sync with attendance-record/backend/constants/languages.py values.
+# Keep in sync with the local collector's language-name list.
 ALLOWED_LANGUAGES = frozenset(
     {
         "TypeScript",
@@ -104,8 +104,8 @@ def _aggregate_languages(
     cols = {row[1] for row in conn.execute("PRAGMA table_info(git_commits)")}
     if "languages_json" not in cols:
         print(
-            "warning: git_commits.languages_json missing — restart attendance-record "
-            "API once, then re-sync git history to backfill languages",
+            "warning: git_commits.languages_json missing — re-sync git history "
+            "on the local collector so language aggregates can be exported",
             file=sys.stderr,
         )
         return {}, {}
@@ -196,7 +196,7 @@ def export(db_path: Path, out_path: Path) -> dict:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--db", required=True, type=Path, help="path to attendance.db")
+    parser.add_argument("--db", required=True, type=Path, help="path to local SQLite DB")
     parser.add_argument(
         "--out",
         type=Path,

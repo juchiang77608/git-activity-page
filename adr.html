@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>架構決策 · Git 活動</title>
+<style>
+  :root {
+    --bg: #f0eeeb;
+    --card: #ffffff;
+    --ink: #2b2733;
+    --muted: #7a7385;
+    --accent: #8b7fa8;
+    --accent-dark: #6d5f8d;
+    --line: #e7e4ee;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, "PingFang TC", "Noto Sans TC", "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    padding: 40px 24px 108px;
+    line-height: 1.7;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 26px; margin: 0 0 6px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 24px; }
+  .card {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 1px 3px rgba(43,39,51,.08);
+    margin-bottom: 16px;
+  }
+  .toc { padding: 0; margin: 0; list-style: none; }
+  .toc li { margin: 0; }
+  .toc a {
+    display: flex; align-items: baseline; gap: 10px;
+    padding: 8px 0;
+    color: var(--ink); text-decoration: none;
+    border-bottom: 1px solid var(--line);
+  }
+  .toc li:last-child a { border-bottom: 0; }
+  .toc a:hover { color: var(--accent-dark); }
+  .toc .num {
+    flex: 0 0 3.2em; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums;
+  }
+  article { scroll-margin-top: 24px; }
+  article h2 {
+    font-size: 20px; margin: 0 0 8px; line-height: 1.35;
+  }
+  .meta { color: var(--muted); font-size: 13px; margin: 0 0 18px; }
+  article h3 {
+    font-size: 15px; margin: 22px 0 8px;
+  }
+  article p { margin: 0 0 12px; }
+  article ul, article ol { margin: 0 0 12px; padding-left: 1.3em; }
+  article li { margin: 4px 0; }
+  article a { color: var(--accent-dark); }
+  .pro, .con { margin: 0 0 8px; font-size: 13px; font-weight: 600; }
+  .pro { color: var(--accent-dark); }
+  .con { color: #8a6a6a; }
+  table {
+    width: 100%; border-collapse: collapse; font-size: 13.5px;
+    margin: 8px 0 4px;
+  }
+  th, td {
+    text-align: left; vertical-align: top;
+    padding: 8px 10px; border-bottom: 1px solid var(--line);
+  }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; }
+  code {
+    font-size: 0.92em;
+    background: var(--line);
+    border-radius: 4px;
+    padding: 0.1em 0.35em;
+  }
+  footer { margin-top: 8px; font-size: 12.5px; color: var(--muted); line-height: 1.7; }
+  footer a { color: var(--accent-dark); }
+  .site-nav {
+    position: fixed;
+    left: 50%;
+    bottom: 18px;
+    transform: translateX(-50%);
+    z-index: 3000;
+    width: min(560px, calc(100vw - 32px));
+  }
+  .site-nav-panel {
+    margin-bottom: 8px;
+    background: var(--ink);
+    border-radius: 22px;
+    padding: 18px 28px 14px;
+    box-shadow: 0 16px 40px rgba(43, 39, 51, 0.28);
+  }
+  .site-nav-panel a {
+    display: block;
+    padding: 11px 0;
+    color: rgba(240, 238, 235, 0.5);
+    text-decoration: none;
+    font-size: 17px;
+    line-height: 1.4;
+  }
+  .site-nav-panel a:hover { color: #f0eeeb; }
+  .site-nav-panel a[aria-current="page"] {
+    color: #f0eeeb;
+    text-decoration: underline;
+    text-underline-offset: 6px;
+    text-decoration-thickness: 1px;
+  }
+  .site-nav-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    border: 0;
+    border-radius: 999px;
+    padding: 13px 20px;
+    background: var(--ink);
+    color: #f0eeeb;
+    font: inherit;
+    font-size: 15px;
+    cursor: pointer;
+    box-shadow: 0 10px 28px rgba(43, 39, 51, 0.28);
+  }
+  .site-nav-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+  .site-nav-bars {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3px;
+    width: 14px;
+  }
+  .site-nav-bars i {
+    display: block;
+    height: 1.5px;
+    background: #f0eeeb;
+    border-radius: 1px;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>架構決策</h1>
+  <p class="sub">為什麼這頁只公開聚合數字、不連本機系統。四則皆已接受。</p>
+
+  <nav class="card" aria-label="ADR 目錄">
+    <ol class="toc">
+      <li><a href="#adr-0001"><span class="num">0001</span>本機蒐集、公開靜態切片</a></li>
+      <li><a href="#adr-0002"><span class="num">0002</span>公開資料僅含聚合統計</a></li>
+      <li><a href="#adr-0003"><span class="num">0003</span>語言 allowlist，不公開路徑</a></li>
+      <li><a href="#adr-0004"><span class="num">0004</span>離線匯出、手動發布</a></li>
+    </ol>
+  </nav>
+
+  <article class="card" id="adr-0001">
+    <h2>ADR-0001：本機蒐集、公開靜態切片</h2>
+    <p class="meta">狀態：已接受　·　2026-09-10（依既有實作公開整理）</p>
+    <h3>背景</h3>
+    <p>需要同時做到兩件事：本機追蹤多個 git repo 的開發活動（含未推上遠端的私有專案），以及把「有在寫 code」的節奏公開成可瀏覽的頁面。</p>
+    <p>若把本機全端系統直接部署上線，會暴露 repo 清單、訊息與路徑。若只做純前端、資料全在瀏覽器，又無法穩定讀取本機多個 repo 的歷史。</p>
+    <h3>決策</h3>
+    <p>分成兩層，互不共用執行環境：</p>
+    <ol>
+      <li><b>本機蒐集</b>：單機全端工具（Vue 3 + FastAPI + SQLite）讀取本機 git 歷史並持久化。不部署到雲端，不對外提供 API。</li>
+      <li><b>公開切片</b>：本站只放靜態頁與一份匯出檔，經 GitHub Pages 發布。</li>
+    </ol>
+    <p>公開層不知道本機工具的目錄結構，也不在瀏覽器裡連回本機 API。</p>
+    <h3>理由</h3>
+    <ul>
+      <li>蒐集需要檔案系統與 git，適合留在本機。</li>
+      <li>展示只需要日期次數與語言合計，不需要即時查詢。</li>
+      <li>兩層切開後，公開內容的洩漏面固定為靜態檔，較容易審查。</li>
+    </ul>
+    <h3>後果</h3>
+    <p class="pro">正面</p>
+    <ul>
+      <li>私有 repo 可以納入統計，卻不必出現在 GitHub。</li>
+      <li>公開頁無伺服器、無登入、無對本機 API 的依賴。</li>
+    </ul>
+    <p class="con">負面</p>
+    <ul>
+      <li>數字不會自動更新；要另走離線匯出（見 <a href="#adr-0004">ADR-0004</a>）。</li>
+      <li>訪客看不到本機工具本身，只能看到聚合結果。</li>
+    </ul>
+    <h3>替代方案</h3>
+    <table>
+      <thead><tr><th>方案</th><th>未採用原因</th></tr></thead>
+      <tbody>
+        <tr><td>將本機 API 部署上線</td><td>預設會帶出不該公開的欄位與路徑</td></tr>
+        <tr><td>GitHub 貢獻圖代替</td><td>不含未推送的私有 repo</td></tr>
+        <tr><td>定期 CI 從本機資料庫拉取</td><td>本機資料不在遠端，CI 也拿不到</td></tr>
+      </tbody>
+    </table>
+  </article>
+
+  <article class="card" id="adr-0002">
+    <h2>ADR-0002：公開資料僅含聚合統計</h2>
+    <p class="meta">狀態：已接受　·　2026-09-10（依既有實作公開整理）</p>
+    <h3>背景</h3>
+    <p>本機資料庫為了除錯與對帳，會保存比公開頁所需更多的欄位。若「整庫同步」或把查詢 API 接到這個網站，隱私邊界會變成預設全開。</p>
+    <p>需要一條明確規則：什麼可以離開本機，什麼不行。</p>
+    <h3>決策</h3>
+    <p>離開本機、進入本站的資料<b>只准</b>以下形狀：</p>
+    <ul>
+      <li>每日 commit 次數：日期 → 整數</li>
+      <li>語言檔案觸及次數：全域合計，以及依年合計</li>
+      <li>匯出時間與總筆數</li>
+    </ul>
+    <p>明確排除：repo 名稱、檔案路徑、commit 訊息、作者、diff 行數、原始副檔名。</p>
+    <p>匯出時以白名單欄位寫檔；多出來的欄位直接拒絕寫入。</p>
+    <h3>理由</h3>
+    <ul>
+      <li>熱力圖與語言條只需要次數，不需要識別單一 repo 或檔案。</li>
+      <li>聚合之後，無法還原「哪一天改了哪個客戶專案」。</li>
+      <li>規則寫在匯出層，比事後從頁面上藏欄位可靠。</li>
+    </ul>
+    <h3>後果</h3>
+    <p class="pro">正面</p>
+    <ul>
+      <li>公開檔可用肉眼審查：不該出現路徑或 repo 名稱。</li>
+      <li>頁面可以誠實說明資料範圍。</li>
+    </ul>
+    <p class="con">負面</p>
+    <ul>
+      <li>無法做「依 repo 篩選」或「點格子看 commit 列表」這類展示。</li>
+      <li>次數含私有與公開 repo，外人無法核對單日細節——這是刻意的。</li>
+    </ul>
+    <h3>替代方案</h3>
+    <table>
+      <thead><tr><th>方案</th><th>未採用原因</th></tr></thead>
+      <tbody>
+        <tr><td>公開 repo 清單、隱藏訊息</td><td>清單本身已足以對應客戶／雇主專案</td></tr>
+        <tr><td>只統計已推上 GitHub 的 repo</td><td>失去追蹤本機活動的目的</td></tr>
+        <tr><td>匿名化 repo 名</td><td>數量與活躍度仍可能被對上已知專案</td></tr>
+      </tbody>
+    </table>
+  </article>
+
+  <article class="card" id="adr-0003">
+    <h2>ADR-0003：語言 allowlist，不公開路徑</h2>
+    <p class="meta">狀態：已接受　·　2026-09-10（依既有實作公開整理）</p>
+    <h3>背景</h3>
+    <p>語言分佈對了解技術節奏有用，但依副檔名統計很容易把路徑或少見檔名帶進公開資料（例如未知副檔名，或誤把路徑當成語言名）。</p>
+    <h3>決策</h3>
+    <ol>
+      <li>本機同步時只保存<b>語言顯示名 → 檔案觸及次數</b>，不存路徑。</li>
+      <li>公開匯出再套一層 allowlist（TypeScript、Python、Vue 等已知語言名）。不在名單內的直接丟棄。</li>
+      <li>名稱還需通過安全字元檢查：拒絕路徑分隔符與 <code>..</code>。</li>
+      <li>公開頁只呈現語言名與次數，不呈現副檔名。</li>
+    </ol>
+    <p>本站與本機蒐集端使用同一組語言名，避免一邊寫了、公開頁卻讀不到。</p>
+    <h3>理由</h3>
+    <ul>
+      <li>Allowlist 比「刪掉看起來像路徑的字」少漏網。</li>
+      <li>未知副檔名若原樣輸出，等於洩漏專案慣用的內部檔型。</li>
+      <li>次數以「檔案觸及」計，不需要（也不該）帶路徑才能加總。</li>
+    </ul>
+    <h3>後果</h3>
+    <p class="pro">正面</p>
+    <ul>
+      <li>語言名稱可預期、可審查。</li>
+      <li>熱力圖切換年份時，語言條可安全跟著變。</li>
+    </ul>
+    <p class="con">負面</p>
+    <ul>
+      <li>名單外的語言不會出現（例如冷門副檔名）。</li>
+      <li>兩邊名單若沒同步，匯出會默默丟棄，統計略偏低。</li>
+    </ul>
+    <h3>替代方案</h3>
+    <table>
+      <thead><tr><th>方案</th><th>未採用原因</th></tr></thead>
+      <tbody>
+        <tr><td>公開原始副檔名</td><td>可能洩漏內部工具鏈或產生器檔</td></tr>
+        <tr><td>用 repo 名稱猜語言</td><td>多語言 repo 會嚴重失真</td></tr>
+        <tr><td>只統計本站這個 repo</td><td>不含本機其他專案</td></tr>
+      </tbody>
+    </table>
+  </article>
+
+  <article class="card" id="adr-0004">
+    <h2>ADR-0004：離線匯出、手動發布</h2>
+    <p class="meta">狀態：已接受　·　2026-09-10（依既有實作公開整理）</p>
+    <h3>背景</h3>
+    <p>本機資料庫與公開頁必須保持斷開（見 <a href="#adr-0001">ADR-0001</a>）。若這站的程式去打本機 API，一般訪客會連不到；若把本機服務開到網路上，又違反「API 不對外」的前提。</p>
+    <p>仍需要一條更新公開數字的路。</p>
+    <h3>決策</h3>
+    <ol>
+      <li>在本機、離線讀取資料庫（唯讀），寫出公開用的 JSON。</li>
+      <li>人工檢查後再發布靜態檔。</li>
+      <li>公開頁只讀那一份 JSON，無其他後端、無定時爬蟲。</li>
+      <li>含本機絕對路徑的操作指令不寫進公開說明。</li>
+    </ol>
+    <h3>理由</h3>
+    <ul>
+      <li>更新頻率低（人為「發布一版統計」），不值得做常駐同步。</li>
+      <li>每次發布都經過版本紀錄，公開檔可對照、可回溯。</li>
+      <li>靜態讀檔讓本機預覽與線上行為一致。</li>
+    </ul>
+    <h3>後果</h3>
+    <p class="pro">正面</p>
+    <ul>
+      <li>公開站零營運：無常駐程序、無密鑰、無可被呼叫的 API。</li>
+      <li>匯出失敗不會自動污染線上檔。</li>
+    </ul>
+    <p class="con">負面</p>
+    <ul>
+      <li>熱力圖會過期，直到下次手動匯出。</li>
+      <li>忘記更新時，訪客看到的是舊節奏。</li>
+    </ul>
+    <h3>替代方案</h3>
+    <table>
+      <thead><tr><th>方案</th><th>未採用原因</th></tr></thead>
+      <tbody>
+        <tr><td>公開頁直連本機 API</td><td>訪客連不到；也擴大攻擊面</td></tr>
+        <tr><td>用雲端排程自動匯出</td><td>雲端拿不到本機資料庫</td></tr>
+        <tr><td>把資料庫放到雲端再讓排程讀</td><td>等於把蒐集層搬上雲，偏離 local-first</td></tr>
+      </tbody>
+    </table>
+  </article>
+
+  <footer>
+    以上為公開改寫，不含本機目錄與未公開系統的內部細節。
+  </footer>
+</div>
+<nav class="site-nav" aria-label="網站選單">
+  <div class="site-nav-panel" id="site-nav-panel" hidden>
+    <a href="index.html">Git 活動</a>
+    <a href="adr.html" aria-current="page">架構決策</a>
+  </div>
+  <button type="button" class="site-nav-btn" aria-expanded="false" aria-controls="site-nav-panel">
+    <span class="site-nav-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+    選單
+  </button>
+</nav>
+<script>
+(function () {
+  const root = document.querySelector('.site-nav');
+  const btn = root && root.querySelector('.site-nav-btn');
+  const panel = document.getElementById('site-nav-panel');
+  if (!root || !btn || !panel) return;
+  const setOpen = (open) => {
+    panel.hidden = !open;
+    btn.setAttribute('aria-expanded', String(open));
+  };
+  btn.addEventListener('click', () => setOpen(panel.hidden));
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') setOpen(false);
+  });
+  document.addEventListener('click', (e) => {
+    if (!root.contains(e.target)) setOpen(false);
+  });
+})();
+</script>
+</body>
+</html>
